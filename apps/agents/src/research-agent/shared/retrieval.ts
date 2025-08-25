@@ -12,6 +12,22 @@ import { CohereEmbeddings } from "@langchain/cohere";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { GeminiEmbeddings } from "@langchain/google-genai";
 
+/**
+ * Creates an Elasticsearch-backed VectorStore retriever using the provided embeddings.
+ *
+ * Uses ELASTICSEARCH_URL to connect to Elasticsearch and selects authentication based on
+ * configuration.retrieverProvider:
+ * - "elastic-local": requires ELASTICSEARCH_USER and ELASTICSEARCH_PASSWORD (basic auth).
+ * - otherwise: requires ELASTICSEARCH_API_KEY (API key auth).
+ *
+ * The retriever is built from an ElasticVectorSearch against index "langchain_index" and
+ * returned with an applied filter from configuration.searchKwargs (or an empty filter if unset).
+ *
+ * @param configuration - Normalized base configuration; its `retrieverProvider` and `searchKwargs` fields control auth selection and retriever filtering.
+ * @param embeddingModel - Embeddings implementation used to create the Elastic vector store.
+ * @returns A VectorStoreRetriever configured for the Elasticsearch index.
+ * @throws If ELASTICSEARCH_URL is missing or the required authentication environment variables are not defined.
+ */
 async function makeElasticRetriever(
   configuration: ReturnType<typeof ensureBaseConfiguration>,
   embeddingModel: Embeddings,
@@ -90,6 +106,22 @@ async function makeMongoDBRetriever(
   return vectorStore.asRetriever({ filter: configuration.searchKwargs || {} });
 }
 
+/**
+ * Create an Embeddings instance for the given model identifier.
+ *
+ * Parses `modelName` of the form `<provider>/<model>` to select and instantiate
+ * the corresponding embeddings provider. If `modelName` contains no `/`, the
+ * provider defaults to `gemini` and the entire string is used as the model name.
+ *
+ * Supported providers:
+ * - `gemini` → returns `GeminiEmbeddings({ model })`
+ * - `openai` → returns `OpenAIEmbeddings({ model })`
+ * - `cohere` → returns `CohereEmbeddings({ model })`
+ *
+ * @param modelName - A provider-qualified model string (`provider/model`) or a bare model name (defaults provider to `gemini`).
+ * @returns An Embeddings instance for the requested provider and model.
+ * @throws Error if the provider parsed from `modelName` is not supported.
+ */
 function makeTextEmbeddings(modelName: string): Embeddings {
   /**
    * Connect to the configured text encoder.
