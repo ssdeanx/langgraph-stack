@@ -1,11 +1,11 @@
-import { HumanResponseWithEdits, SubmitType } from "../types";
+import type { HumanResponseWithEdits, SubmitType } from "../types";
 import { Textarea } from "@/components/ui/textarea";
 import React from "react";
 import { haveArgsChanged, prettifyText } from "../utils";
 import { Button } from "@/components/ui/button";
 import { Undo2 } from "lucide-react";
 import { MarkdownText } from "../../markdown-text";
-import { ActionRequest, HumanInterrupt } from "@langchain/langgraph/prebuilt";
+import type { ActionRequest, HumanInterrupt } from "@langchain/langgraph/prebuilt";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 
@@ -267,9 +267,7 @@ function EditAndOrAcceptComponent({
           defaultRows.current[k as keyof typeof defaultRows.current] ===
           undefined
         ) {
-          defaultRows.current[k as keyof typeof defaultRows.current] = !v.length
-            ? 3
-            : Math.max(v.length / 30, 7);
+          defaultRows.current[k as keyof typeof defaultRows.current] = v.length ? Math.max(v.length / 30, 7) : 3;
         }
         const numRows =
           defaultRows.current[k as keyof typeof defaultRows.current] || 8;

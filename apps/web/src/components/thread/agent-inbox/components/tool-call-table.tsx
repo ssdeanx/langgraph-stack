@@ -1,4 +1,4 @@
-import { ToolCall } from "@langchain/core/messages/tool";
+import type { ToolCall } from "@langchain/core/messages/tool";
 import { unknownToPrettyDate } from "../utils";
 
 export function ToolCallTable({ toolCall }: { toolCall: ToolCall }) {

@@ -1,5 +1,5 @@
 import { useStreamContext } from "@/providers/Stream";
-import { Message } from "@langchain/langgraph-sdk";
+import type { Message } from "@langchain/langgraph-sdk";
 import { useState } from "react";
 import { getContentString } from "../utils";
 import { cn } from "@/lib/utils";
@@ -58,7 +58,9 @@ export function HumanMessage({
         streamMode: ["values"],
         optimisticValues: (prev) => {
           const values = meta?.firstSeenState?.values;
-          if (!values) return prev;
+          if (!values) {
+            return prev;
+          }
 
           return {
             ...values,

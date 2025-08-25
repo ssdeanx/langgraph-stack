@@ -74,7 +74,9 @@ export function BranchSwitcher({
   onSelect: (branch: string) => void;
   isLoading: boolean;
 }) {
-  if (!branchOptions || !branch) return null;
+  if (!branchOptions || !branch) {
+    return null;
+  }
   const index = branchOptions.indexOf(branch);
 
   return (
@@ -101,7 +103,9 @@ export function BranchSwitcher({
         className="size-6 p-1"
         onClick={() => {
           const nextBranch = branchOptions[index + 1];
-          if (!nextBranch) return;
+          if (!nextBranch) {
+            return;
+          }
           onSelect(nextBranch);
         }}
         disabled={isLoading}

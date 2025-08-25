@@ -82,7 +82,9 @@ function OpenGitHubRepo() {
           <a
             href="https://github.com/langchain-ai/agent-chat-ui"
             target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center justify-center"
+            title="Open GitHub repository"
           >
             <GitHubSVG width="24" height="24" />
           </a>
@@ -110,8 +112,7 @@ export function Thread() {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   const stream = useStreamContext();
-  const messages = stream.messages;
-  const isLoading = stream.isLoading;
+  const {messages, isLoading} = stream;
 
   const lastError = useRef<string | undefined>(undefined);
 
@@ -121,7 +122,7 @@ export function Thread() {
       return;
     }
     try {
-      const message = (stream.error as any).message;
+      const {message} = stream.error as any;
       if (!message || lastError.current === message) {
         // Message has already been logged. do not modify ref, return early.
         return;
@@ -159,7 +160,9 @@ export function Thread() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading) {
+      return;
+    }
     setFirstTokenReceived(false);
 
     const newHumanMessage: Message = {
@@ -191,7 +194,7 @@ export function Thread() {
     parentCheckpoint: Checkpoint | null | undefined,
   ) => {
     // Do this so the loading state is correct
-    prevMessageLength.current = prevMessageLength.current - 1;
+    prevMessageLength.current -= 1;
     setFirstTokenReceived(false);
     stream.submit(undefined, {
       checkpoint: parentCheckpoint,

@@ -83,13 +83,31 @@ export function GenericInterruptView({
               <table className="min-w-full divide-y divide-gray-200">
                 <tbody className="divide-y divide-gray-200">
                   {displayEntries.map((item, argIdx) => {
-                    const [key, value] = Array.isArray(interrupt)
-                      ? [argIdx.toString(), item]
-                      : (item as [string, any]);
+                    const isArrayInterrupt = Array.isArray(interrupt);
+                    const keyDisplay = isArrayInterrupt ? argIdx.toString() : (item as [string, any])[0];
+                    const value = isArrayInterrupt ? item : (item as [string, any])[1];
+
+                    // Derive a stable key for React without using the array index.
+                    const getStableKey = (it: any) => {
+                      if (it === null || it === undefined) {
+                        return String(it);
+                      }
+                      if (typeof it === "string" || typeof it === "number" || typeof it === "boolean") {
+                        return String(it);
+                      }
+                      try {
+                        return JSON.stringify(it);
+                      } catch {
+                        return Object.prototype.toString.call(it);
+                      }
+                    };
+
+                    const rowKey = isArrayInterrupt ? getStableKey(item) : keyDisplay;
+
                     return (
-                      <tr key={argIdx}>
+                      <tr key={rowKey}>
                         <td className="px-4 py-2 text-sm font-medium text-gray-900 whitespace-nowrap">
-                          {key}
+                          {keyDisplay}
                         </td>
                         <td className="px-4 py-2 text-sm text-gray-500">
                           {isComplexValue(value) ? (

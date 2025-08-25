@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useQueryState } from "nuqs";
 import { constructOpenInStudioURL } from "../utils";
-import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
+import type { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 
 interface ThreadActionsViewProps {
   interrupt: HumanInterrupt;

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useThreads } from "@/providers/Thread";
-import { Thread } from "@langchain/langgraph-sdk";
+import type { Thread } from "@langchain/langgraph-sdk";
 import { useEffect } from "react";
 
 import { getContentString } from "../utils";
@@ -59,11 +59,13 @@ function ThreadList({
   );
 }
 
+const SKELETON_KEYS = Array.from({ length: 30 }, (_, idx) => `skeleton-placeholder-${idx}`);
+
 function ThreadHistoryLoading() {
   return (
     <div className="h-full flex flex-col w-full gap-2 items-start justify-start overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent">
-      {Array.from({ length: 30 }).map((_, i) => (
-        <Skeleton key={`skeleton-${i}`} className="w-[280px] h-10" />
+      {SKELETON_KEYS.map((key) => (
+        <Skeleton key={key} className="w-[280px] h-10" />
       ))}
     </div>
   );
@@ -80,13 +82,15 @@ export default function ThreadHistory() {
     useThreads();
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined") {
+      return;
+    }
     setThreadsLoading(true);
     getThreads()
       .then(setThreads)
       .catch(console.error)
       .finally(() => setThreadsLoading(false));
-  }, []);
+  }, [getThreads, setThreads, setThreadsLoading]);
 
   return (
     <>
@@ -117,7 +121,9 @@ export default function ThreadHistory() {
         <Sheet
           open={!!chatHistoryOpen && !isLargeScreen}
           onOpenChange={(open) => {
-            if (isLargeScreen) return;
+            if (isLargeScreen) {
+              return;
+            }
             setChatHistoryOpen(open);
           }}
         >

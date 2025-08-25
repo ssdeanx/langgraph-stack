@@ -1,5 +1,5 @@
 import { ChevronRight, X, ChevronsDownUp, ChevronsUpDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type KeyboardEvent } from "react";
 import {
   baseMessageObject,
   isArrayOfMessages,
@@ -8,8 +8,8 @@ import {
 } from "../utils";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { BaseMessage } from "@langchain/core/messages";
-import { ToolCall } from "@langchain/core/messages/tool";
+import type { BaseMessage } from "@langchain/core/messages";
+import type { ToolCall } from "@langchain/core/messages/tool";
 import { ToolCallTable } from "./tool-call-table";
 import { Button } from "@/components/ui/button";
 import { MarkdownText } from "../../markdown-text";
@@ -98,18 +98,45 @@ function StateViewRecursive(props: StateViewRecursiveProps) {
     }
 
     const valueArray = props.value as unknown[];
+
+    const getStableKey = (val: unknown, fallback: number) => {
+      if (val && typeof val === "object") {
+        const v = val as Record<string, any>;
+        if (typeof v.id === "string" || typeof v.id === "number") {
+          return `state-view-${v.id}`;
+        }
+        // some messages may expose a type-getter
+        if (typeof v._getType === "function") {
+          try {
+            const t = v._getType();
+            return `state-view-${t}-${v.id ?? fallback}`;
+          } catch {
+            // fallthrough
+          }
+        }
+        try {
+          const s = JSON.stringify(v);
+          return `state-view-${s.length > 64 ? s.slice(0, 64) : s}`;
+        } catch {
+          // fallthrough
+        }
+      }
+      return `state-view-${String(val)}-${fallback}`;
+    };
+
     return (
       <div className="flex flex-row gap-1 items-start justify-start w-full">
         <span className="font-normal text-black">[</span>
         {valueArray.map((item, idx) => {
           const itemRenderValue = baseMessageObject(item);
+          const key = getStableKey(itemRenderValue, idx);
           return (
             <div
-              key={`state-view-${idx}`}
+              key={key}
               className="flex flex-row items-start whitespace-pre-wrap w-full"
             >
               <StateViewRecursive value={itemRenderValue} />
-              {idx < valueArray?.length - 1 && (
+              {idx < valueArray.length - 1 && (
                 <span className="text-black font-normal">,&nbsp;</span>
               )}
             </div>
@@ -129,9 +156,9 @@ function StateViewRecursive(props: StateViewRecursiveProps) {
         {/* Vertical line */}
         <div className="absolute left-[-24px] top-0 h-full w-[1px] bg-gray-200" />
 
-        {Object.entries(props.value).map(([key, value], idx) => (
+        {Object.entries(props.value).map(([key, value]) => (
           <div
-            key={`state-view-object-${key}-${idx}`}
+            key={`state-view-object-${key}`}
             className="relative w-full"
           >
             {/* Horizontal connector line */}
@@ -149,18 +176,28 @@ function StateViewRecursive(props: StateViewRecursiveProps) {
 }
 
 function HasContentsEllipsis({ onClick }: { onClick?: () => void }) {
+  const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick?.();
+    }
+  };
+
   return (
-    <span
+    <button
+      type="button"
       onClick={onClick}
+      onKeyDown={handleKeyDown}
+      aria-label="Expand contents"
       className={cn(
         "font-mono text-[10px] leading-3 p-[2px] rounded-md",
         "bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-800",
-        "transition-colors ease-in-out cursor-pointer",
+        "transition-colors ease-in-out",
         "-translate-y-[2px] inline-block",
       )}
     >
       {"{...}"}
-    </span>
+    </button>
   );
 }
 
@@ -190,12 +227,15 @@ export function StateViewObject(props: StateViewProps) {
         animate={{ rotate: expanded ? 90 : 0 }}
         transition={{ duration: 0.2 }}
       >
-        <div
+        <button
+          type="button"
           onClick={() => setExpanded((prev) => !prev)}
           className="w-5 h-5 flex items-center justify-center hover:bg-gray-100 text-gray-500 hover:text-black rounded-md transition-colors ease-in-out cursor-pointer"
+          aria-expanded={expanded ? "true" : "false"}
+          aria-label={expanded ? "Collapse" : "Expand"}
         >
           <ChevronRight className="w-4 h-4" />
-        </div>
+        </button>
       </motion.div>
       <div className="flex flex-col gap-1 items-start justify-start w-full">
         <p className="text-black font-normal">
@@ -260,10 +300,10 @@ export function StateView({
       )}
       {view === "state" && (
         <div className="flex flex-col items-start justify-start gap-1">
-          {Object.entries(values).map(([k, v], idx) => (
+          {Object.entries(values).map(([k, v]) => (
             <StateViewObject
               expanded={expanded}
-              key={`state-view-${k}-${idx}`}
+              key={`state-view-${k}`}
               keyName={k}
               value={v}
             />

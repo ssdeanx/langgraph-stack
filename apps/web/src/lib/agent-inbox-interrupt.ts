@@ -1,4 +1,4 @@
-import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
+import type { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 
 export function isAgentInboxInterruptSchema(
   value: unknown,
