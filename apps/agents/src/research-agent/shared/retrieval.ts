@@ -10,6 +10,7 @@ import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 import { Embeddings } from "@langchain/core/embeddings";
 import { CohereEmbeddings } from "@langchain/cohere";
 import { OpenAIEmbeddings } from "@langchain/openai";
+import { GeminiEmbeddings } from "@langchain/google-genai";
 
 async function makeElasticRetriever(
   configuration: ReturnType<typeof ensureBaseConfiguration>,
@@ -97,12 +98,14 @@ function makeTextEmbeddings(modelName: string): Embeddings {
   let provider, model;
   if (index === -1) {
     model = modelName;
-    provider = "openai"; // Assume openai if no provider included
+    provider = "gemini"; // Assume gemini if no provider included
   } else {
     provider = modelName.slice(0, index);
     model = modelName.slice(index + 1);
   }
   switch (provider) {
+    case "gemini":
+      return new GeminiEmbeddings({ model });
     case "openai":
       return new OpenAIEmbeddings({ model });
     case "cohere":

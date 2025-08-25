@@ -23,7 +23,7 @@ async function indexDocs(
   }
 
   const configuration = ensureIndexConfiguration(config);
-  let docs = state.docs;
+  let {docs} = state;
 
   if (!docs.length) {
     const fileContent = await fs.readFile(configuration.docsFile, "utf-8");

@@ -38,7 +38,7 @@ async function analyzeAndRouteQuery(
 function routeQuery(
   state: typeof AgentStateAnnotation.State,
 ): "createResearchPlan" | "askForMoreInfo" | "respondToGeneralQuery" {
-  const type = state.router.type;
+  const {type} = state.router;
   if (type === "langchain") {
     return "createResearchPlan";
   } else if (type === "more-info") {
