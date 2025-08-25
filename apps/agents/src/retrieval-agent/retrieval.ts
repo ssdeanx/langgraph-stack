@@ -7,7 +7,7 @@ import { PineconeStore } from "@langchain/pinecone";
 import { MongoClient } from "mongodb";
 import { ensureConfiguration } from "./configuration.js";
 import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
-import { Embeddings } from "@langchain/core/embeddings";
+import type { Embeddings } from "@langchain/core/embeddings";
 import { CohereEmbeddings } from "@langchain/cohere";
 import { OpenAIEmbeddings } from "@langchain/openai";
 
@@ -67,7 +67,7 @@ async function makePineconeRetriever(
     throw new Error("PINECONE_INDEX_NAME environment variable is not defined");
   }
   const pinecone = new PineconeClient();
-  const pineconeIndex = pinecone.Index(indexName!);
+  const pineconeIndex = pinecone.Index(indexName);
   const vectorStore = await PineconeStore.fromExistingIndex(embeddingModel, {
     pineconeIndex,
   });
