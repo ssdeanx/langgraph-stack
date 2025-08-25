@@ -58,6 +58,15 @@ async function makeElasticRetriever(
   return vectorStore.asRetriever({ filter });
 }
 
+/**
+ * Creates a Pinecone-backed VectorStoreRetriever using the provided embeddings and configuration.
+ *
+ * Throws if the PINECONE_INDEX_NAME environment variable is not set.
+ *
+ * @param configuration - Normalized configuration from `ensureConfiguration`; must include `userId` and may include `searchKwargs` used to build the query filter.
+ * @param embeddingModel - Embeddings instance used to index and query vectors.
+ * @returns A Promise that resolves to a VectorStoreRetriever scoped to `configuration.userId`.
+ */
 async function makePineconeRetriever(
   configuration: ReturnType<typeof ensureConfiguration>,
   embeddingModel: Embeddings,
@@ -110,6 +119,16 @@ async function makeMongoDBRetriever(
   return vectorStore.asRetriever({ filter: searchKwargs });
 }
 
+/**
+ * Create an Embeddings instance for the specified provider and model.
+ *
+ * The `modelName` should be either `"<provider>/<model>"` (e.g. `"openai/text-embedding-3-large"`)
+ * or a bare model name (e.g. `"text-embedding-3-large"`). If no provider is given, `openai` is assumed.
+ *
+ * @param modelName - Provider and model specifier in the form `"<provider>/<model>"` or just `"<model>"`
+ * @returns An Embeddings implementation for the chosen provider and model
+ * @throws Error if the provider parsed from `modelName` is unsupported
+ */
 function makeTextEmbeddings(modelName: string): Embeddings {
   /**
    * Connect to the configured text encoder.
@@ -133,6 +152,15 @@ function makeTextEmbeddings(modelName: string): Embeddings {
   }
 }
 
+/**
+ * Create a VectorStoreRetriever based on the provided runnable configuration.
+ *
+ * Builds an embeddings instance from the configured embedding model, validates the presence of a user ID, and dispatches to the backend-specific retriever factory (Elasticsearch, Pinecone, or MongoDB Atlas) according to `configuration.retrieverProvider`.
+ *
+ * @param config - Runnable configuration that must include `embeddingModel`, `retrieverProvider`, and `userId`.
+ * @returns A Promise that resolves to a VectorStoreRetriever for the chosen backend.
+ * @throws Error if `userId` is missing or if `retrieverProvider` is unrecognized.
+ */
 export async function makeRetriever(
   config: RunnableConfig,
 ): Promise<VectorStoreRetriever> {
