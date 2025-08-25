@@ -50,3 +50,8 @@ credentials.json
 #Ignore cursor AI rules
 .cursor/rules/codacy.mdc
 .specstory/history/2025-08-25_10-34Z-review-project-and-create-new-github-style.md
+.specstory/
+.specstory/**/*.md
+.specstory/
+*.specstory/
+*.specstory
