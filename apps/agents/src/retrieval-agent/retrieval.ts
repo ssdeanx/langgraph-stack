@@ -69,8 +69,12 @@ async function makePineconeRetriever(
   const pinecone = new PineconeClient();
   const pineconeIndex = pinecone.Index(indexName);
   const vectorStore = await PineconeStore.fromExistingIndex(embeddingModel, {
-    pineconeIndex,
+    // Cast to the Pinecone Index type to avoid type incompatibility when multiple copies of
+    // @pinecone-database/pinecone are installed (which creates distinct
+    // private symbol declarations and causes the TS error).
+    pineconeIndex: pineconeIndex as any,
   });
+
 
   const searchKwargs = configuration.searchKwargs || {};
   const filter = {
@@ -111,7 +115,7 @@ function makeTextEmbeddings(modelName: string): Embeddings {
    * Connect to the configured text encoder.
    */
   const index = modelName.indexOf("/");
-  let provider, model;
+  let provider: string, model: string;
   if (index === -1) {
     model = modelName;
     provider = "openai"; // Assume openai if no provider included
@@ -135,7 +139,7 @@ export async function makeRetriever(
   const configuration = ensureConfiguration(config);
   const embeddingModel = makeTextEmbeddings(configuration.embeddingModel);
 
-  const userId = configuration.userId;
+  const {userId} = configuration;
   if (!userId) {
     throw new Error("Please provide a valid user_id in the configuration.");
   }

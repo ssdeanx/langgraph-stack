@@ -47,7 +47,7 @@ export function ensureBaseConfiguration(
   >;
   return {
     embeddingModel:
-      configurable.embeddingModel || "openai/text-embedding-3-small",
+      configurable.embeddingModel || "gemini/gemini-embedding-001",
     retrieverProvider: configurable.retrieverProvider || "elastic-local",
     searchKwargs: configurable.searchKwargs || {},
   };

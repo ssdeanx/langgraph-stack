@@ -6,7 +6,7 @@ import { initChatModel } from "langchain/chat_models/universal";
 
 export function getMessageText(msg: BaseMessage): string {
   /** Get the text content of a message. */
-  const content = msg.content;
+  const {content} = msg;
   if (typeof content === "string") {
     return content;
   } else {
