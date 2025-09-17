@@ -35,6 +35,18 @@ async function analyzeAndRouteQuery(
   return { router: response };
 }
 
+/**
+ * Map the state's router decision to the next graph node.
+ *
+ * Reads `state.router.type` and returns the corresponding next node name:
+ * - "langchain" -> "createResearchPlan"
+ * - "more-info" -> "askForMoreInfo"
+ * - "general" -> "respondToGeneralQuery"
+ *
+ * @param state - Agent state containing a `router.type` field
+ * @returns The next node name to transition to in the graph
+ * @throws Error if `state.router.type` is not one of the expected values
+ */
 function routeQuery(
   state: typeof AgentStateAnnotation.State,
 ): "createResearchPlan" | "askForMoreInfo" | "respondToGeneralQuery" {

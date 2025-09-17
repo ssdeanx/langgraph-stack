@@ -17,6 +17,12 @@ export const ConfigurationSchema = Annotation.Root({
   model: Annotation<string>,
 });
 
+/**
+ * Populate and return a ConfigurationSchema.State using values from the given RunnableConfig, applying defaults for any missing fields.
+ *
+ * @param config - RunnableConfig that may contain a `configurable` object with overrides for `systemPromptTemplate` and `model`.
+ * @returns Configuration state where `systemPromptTemplate` defaults to `SYSTEM_PROMPT_TEMPLATE` and `model` defaults to `"gemini-2.5-flash"` if not provided.
+ */
 export function ensureConfiguration(
   config: RunnableConfig,
 ): typeof ConfigurationSchema.State {

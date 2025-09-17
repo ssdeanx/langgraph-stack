@@ -34,10 +34,18 @@ export const BaseConfigurationAnnotation = Annotation.Root({
 });
 
 /**
- * Create an typeof BaseConfigurationAnnotation.State instance from a RunnableConfig object.
+ * Build a BaseConfigurationAnnotation.State from a RunnableConfig, applying defaults for missing fields.
  *
- * @param config - The configuration object to use.
- * @returns An instance of typeof BaseConfigurationAnnotation.State with the specified configuration.
+ * Returns an object compatible with BaseConfigurationAnnotation.State where:
+ * - `embeddingModel` defaults to `"gemini/gemini-embedding-001"`,
+ * - `retrieverProvider` defaults to `"elastic-local"`,
+ * - `searchKwargs` defaults to an empty object.
+ *
+ * This function does not mutate the input `config`; it reads `config.configurable` (if present)
+ * and fills in any missing fields with the defaults above.
+ *
+ * @param config - The RunnableConfig containing an optional `configurable` object to source values from.
+ * @returns A fully populated BaseConfigurationAnnotation.State object.
  */
 export function ensureBaseConfiguration(
   config: RunnableConfig,

@@ -4,6 +4,17 @@ import { Document } from "@langchain/core/documents";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { initChatModel } from "langchain/chat_models/universal";
 
+/**
+ * Extracts and returns the textual content of a BaseMessage.
+ *
+ * If `msg.content` is a string it is returned directly. If it's an array, each
+ * element is converted to a string by using the element itself when it's a
+ * string, otherwise using the element's `text` property if present, or `""`
+ * as a fallback. The resulting strings are concatenated and trimmed.
+ *
+ * @param msg - The message whose text should be extracted
+ * @returns The concatenated, trimmed text content of `msg`
+ */
 export function getMessageText(msg: BaseMessage): string {
   /** Get the text content of a message. */
   const {content} = msg;

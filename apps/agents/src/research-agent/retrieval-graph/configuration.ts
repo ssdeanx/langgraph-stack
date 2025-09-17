@@ -66,10 +66,19 @@ export const AgentConfigurationAnnotation = Annotation.Root({
 });
 
 /**
- * Create a typeof ConfigurationAnnotation.State instance from a RunnableConfig object.
+ * Build an AgentConfiguration state from a RunnableConfig, filling in any missing fields with defaults.
  *
- * @param config - The configuration object to use.
- * @returns An instance of typeof ConfigurationAnnotation.State with the specified configuration.
+ * Returns a configuration object that merges the base configuration (from ensureBaseConfiguration)
+ * with agent-specific settings. For any field not provided in config.configurable the function
+ * substitutes a sensible default:
+ * - queryModel: "gemini/gemini-2.5-flash"
+ * - responseModel: "gemini/gemini-2.5-flash"
+ * - routerSystemPrompt, moreInfoSystemPrompt, generalSystemPrompt, researchPlanSystemPrompt,
+ *   generateQueriesSystemPrompt, responseSystemPrompt: fall back to their respective constants
+ *   (e.g. ROUTER_SYSTEM_PROMPT, MORE_INFO_SYSTEM_PROMPT, etc.).
+ *
+ * @param config - The runnable configuration whose `.configurable` entries (if present) override defaults.
+ * @returns A complete AgentConfigurationAnnotation.State object with defaults applied where needed.
  */
 export function ensureAgentConfiguration(
   config: RunnableConfig,
